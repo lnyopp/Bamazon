@@ -1,43 +1,48 @@
-const mysql = "mysql"
-const inquirer = "inquirer"
+const mysql = require("mysql")
+const inquirer = require("inquirer")
+require("console.table");
 
-var connection = mysql.createConnection({
-    host: "localhost",
+const connection = mysql.createConnection ({
   
-    // Your port; if not 3306
-    port: 3306,
+  host: "localhost",
+  port: 3306,
+  user: "root",
+  password: "Lny*672542",
+  database: "bamazonDB"
+
+});
   
-    // Your username
-    insecureAuth:true,
-    user: "root",
-  
-    // Your password
-    password: "Lny*672542",
-    database: "bamazonDB"
-  });
-  
-  connection.connect( err => {
-      if (err) { console.error
+ connection.connect( err => {
+      if (err) { 
+        console.error(`error connecting: ${err}`);
     }
+  console.log('connected!');
+    
+  loadProducts();
 
-  }
   });
   
-console.log('connected!');
+
+ const loadProducts = () => {
+  connection.query("SELECT * FROM products",(err, res) => {
+    if(err) {
+      throw err;
+    }
+    console.table(res);
+    promptCustomerForItem(res);
+
+  });
+}
 
 
-
-
-loadproducts();
-
-const promptCustForItem = inventory => {
+ const promptCustForItem = inventory => {
     inquirer
-    .prompt([
+      .prompt([
       {
         type: "input",
         name: "choice",
         message: "What is the ID of the item you would you like to purchase? [Quit with Q]",
-        validate: val => val > 0 || val.toLowerCase() === "q"
+        validate: val => !isNaN(val) || val.toLowerCase() === "q"
         }
     ])
     .then(val => {
@@ -58,29 +63,28 @@ const promptCustForItem = inventory => {
       }
     });
 }
-    const checkIventory = (choiceID,iventory) => {
+ const checkIventory = (choiceID,iventory) => {
         
         const item = inventory.filter(item => item.item_id === choiceID);
         
-        return item.length > 0 ? item[0]: null;
-    }
+        return item.length > 0 ? item[0] : null;
+      }
 
-    const promptCustomerForQuantity = {}
-
-    inquirer
-    .prompt([
-      {
+ const promptCustomerForQuantity = product => {
+   inquirer
+    .prompt([ 
+       {
         type: "input",
         name: "quantity",
         message: "How many would you like? [Quit with Q]",
-        validate: val => val > 0 || val.toLowerCase() === "q"
+        validate: val => val > 0 || val.toUpperCase() === "Q"
       }
     ])
-    .then(function(val) {
+    .then(val => {
       // Check if the user wants to quit the program
       checkIfShouldExit(val.quantity);
-      var quantity = parseInt(val.quantity);
-
+      const quantity = parseInt(val.quantity);
+    
       // If there isn't enough of the chosen product and quantity, let the user know and re-run loadProducts
       if (quantity > product.stock_quantity) {
         console.log("\nInsufficient quantity!");
@@ -92,11 +96,11 @@ const promptCustForItem = inventory => {
       }
     });
 
-
-    const checkIfShouldExit = choice => {
-        if(choice.toLowerCase === "q"){
-            console.log("don't let the screen hit you");
+  }
+ const checkIfShouldExit = choice => {
+        if(choice.toUpperCase === "q"){
+            console.log(`Don't let the screen hit you.`);
             process.exit(0);
         }
     }
-
+  

@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS bamazon;
+DROP DATABASE IF EXISTS bamazonDB;
 
-CREATE DATABASE bamazon;
+CREATE DATABASE bamazonDB;
 
-USE bamazon;
+USE bamazonDB;
 
 CREATE TABLE products (
 
@@ -15,7 +15,8 @@ CREATE TABLE products (
     
     );
     
-    SELECT * FROM products;
+    ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY 'Lny*672542';
+
     
     INSERT INTO products (product_name, department_name, price, stock_quantity)
     Values
